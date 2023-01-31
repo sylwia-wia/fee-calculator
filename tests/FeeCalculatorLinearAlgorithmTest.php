@@ -8,71 +8,104 @@ use PragmaGoTech\Interview\Model\LoanProposal;
 use PragmaGoTech\Interview\Service\FeeCalculatorLinearAlgorithm;
 use PragmaGoTech\Interview\Tests\Data\BreakpointTestData;
 
-class FeeCalculatorLinearAlgorithmTest extends TestCase
+final class FeeCalculatorLinearAlgorithmTest extends TestCase
 {
-    public function testLinearAlgorithmFor1000LoanValue():void
+    /**
+     * @throws FeeCalculatorLinearAlgorithmException
+     * @dataProvider addBadDataProvider
+     */
+    public function testLinearAlgorithmForBadLoanValue($loan, $expected ):void
     {
         $algorithm = new FeeCalculatorLinearAlgorithm();
-        $fee = $algorithm->calculate(new BreakpointTestData(), new LoanProposal(1000));
-        $this->assertEquals(50, $fee);
-    }
 
-    public function testLinearAlgorithmFor6500LoanValue():void
-    {
-        $algorithm = new FeeCalculatorLinearAlgorithm();
-        $fee = $algorithm->calculate(new BreakpointTestData(), new LoanProposal(6500));
-        $this->assertEquals(130, $fee);
+        $fee = $algorithm->calculate(new BreakpointTestData(), new LoanProposal($loan));
+
+        $this->assertNotEquals($expected, $fee);
     }
 
     /**
      * @throws FeeCalculatorLinearAlgorithmException
+     * @dataProvider addCorrectDataProvider
      */
-    public function testLinearAlgorithmFor1234LoanValue():void
+    public function testLinearAlgorithmForCorrectLoanValue($loan, $expected):void
     {
         $algorithm = new FeeCalculatorLinearAlgorithm();
 
-        $fee = $algorithm->calculate(new BreakpointTestData(), new LoanProposal(1234));
+        $fee = $algorithm->calculate(new BreakpointTestData(), new LoanProposal($loan));
 
-        $this->assertNotEquals(60, $fee);
+        $this->assertEquals($expected, $fee);
     }
+
 
     /**
+     * @param $loan
+     * @return void
      * @throws FeeCalculatorLinearAlgorithmException
+     * @dataProvider addDataProviderToSmallLoanValue
      */
-    public function testLinearAlgorithmFor1001LoanValue():void
-    {
-        $algorithm = new FeeCalculatorLinearAlgorithm();
-
-        $fee = $algorithm->calculate(new BreakpointTestData(), new LoanProposal(1001));
-
-        $this->assertEquals(54, $fee);
-    }
-
-    /**
-     * @throws FeeCalculatorLinearAlgorithmException
-     */
-    public function testLinearAlgorithmFor8999LoanValue():void
-    {
-        $algorithm = new FeeCalculatorLinearAlgorithm();
-
-        $fee = $algorithm->calculate(new BreakpointTestData(), new LoanProposal(8999));
-
-        $this->assertEquals(181, $fee, "Fee should have value of 181");
-    }
-
-    public function testLinearAlgorithmToSmallLoanValue():void
+    public function testLinearAlgorithmToSmallLoanValue($loan):void
     {
         $algorithm = new FeeCalculatorLinearAlgorithm();
 
         $this->expectException(FeeCalculatorLinearAlgorithmException::class);
-        $algorithm->calculate(new BreakpointTestData(), new LoanProposal(856));
+        $algorithm->calculate(new BreakpointTestData(), new LoanProposal($loan));
     }
 
-    public function testLinearAlgorithmToBigLoanValue():void
+    /**
+     * @param $loan
+     * @return void
+     * @throws FeeCalculatorLinearAlgorithmException
+     * @dataProvider addDataProviderToBigLoanValue
+     */
+    public function testLinearAlgorithmToBigLoanValue($loan):void
     {
         $algorithm = new FeeCalculatorLinearAlgorithm();
 
         $this->expectException(FeeCalculatorLinearAlgorithmException::class);
-        $algorithm->calculate(new BreakpointTestData(), new LoanProposal(20001));
+        $algorithm->calculate(new BreakpointTestData(), new LoanProposal($loan));
     }
+
+    public function addCorrectDataProvider()
+    {
+        return [
+            [8999, 181],
+            [1001, 54],
+            [5998, 122],
+            [1000, 50],
+            [6500, 130],
+        ];
+    }
+
+    public function addBadDataProvider()
+    {
+        return [
+            [1000, 67],
+            [5998, 111],
+            [9999, 287],
+            [3456, 87],
+            [6500, 131],
+        ];
+
+    }
+
+    public function addDataProviderToSmallLoanValue()
+    {
+        return [
+            [999],
+            [98],
+            [899],
+            [123],
+        ];
+    }
+
+    public function addDataProviderToBigLoanValue()
+    {
+        return [
+            [20001],
+            [55000],
+            [21000],
+            [100000],
+        ];
+    }
+
 }

@@ -18,6 +18,9 @@ class FeeCalculatorLinearAlgorithm implements FeeCalculatorAlgorithm
     public function calculate(BreakpointDataBase $breakpointData, LoanProposal $loanProposal): float
     {
         $dataTable = $breakpointData->getData();
+        $calculateFee = new CalculateFee();
+
+
 
         if ($loanProposal->amount() < $breakpointData->getMinLoanValue()
             || $loanProposal->amount() > $breakpointData->getMaxLoanValue()) {
@@ -26,7 +29,7 @@ class FeeCalculatorLinearAlgorithm implements FeeCalculatorAlgorithm
 
         if (isset($dataTable[$loanProposal->amount()])) {
             $fee = $dataTable[$loanProposal->amount()];
-            return $this->calculateFee($loanProposal, $fee);
+            return $calculateFee->calculateFee($loanProposal, $fee);
         }
 
         ksort($dataTable);
@@ -50,13 +53,8 @@ class FeeCalculatorLinearAlgorithm implements FeeCalculatorAlgorithm
         $d = ($loanProposal->amount() - $minKey) / ($maxKey - $minKey);
         $fee = $minFee * (1-$d) + $maxFee * $d;
 
-        return $this->calculateFee($loanProposal, $fee);
+
+        return $calculateFee->calculateFee($loanProposal, $fee);
     }
 
-    private function calculateFee(LoanProposal $loanProposal, float $rawFee): float
-    {
-        $all = $rawFee + $loanProposal->amount();
-        $all = ceil($all / 5) * 5;
-        return $all - $loanProposal->amount();
-    }
 }

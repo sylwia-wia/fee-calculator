@@ -4,7 +4,7 @@ namespace PragmaGoTech\Interview\Tests\Data;
 
 use PragmaGoTech\Interview\Data\BreakpointDataBase;
 
-class BreakpointTestData extends BreakpointDataBase
+final class BreakpointTestData extends BreakpointDataBase
 {
     protected array $data = [
         1000 => 50,
